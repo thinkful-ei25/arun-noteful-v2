@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 'use strict';
 
 const express = require('express');
@@ -34,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Custom Error Handler
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   if (err.status) {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.status).json(errBody);
@@ -45,8 +47,10 @@ app.use((err, req, res, next) => {
 });
 
 // Listen for incoming connections
-app.listen(PORT, function () {
-  console.info(`Server listening on ${this.address().port}`);
-}).on('error', err => {
-  console.error(err);
-});
+app
+  .listen(PORT, function serverListen() {
+    console.info(`Server listening on ${this.address().port}`);
+  })
+  .on('error', (err) => {
+    console.error(err);
+  });
