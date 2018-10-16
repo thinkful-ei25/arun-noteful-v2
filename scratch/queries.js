@@ -20,3 +20,21 @@ knex
   .catch((err) => {
     console.error(err);
   });
+
+const id = 1003;
+knex('notes')
+  .select()
+  .where({ id })
+  .then(results => console.log(results[0]));
+
+const newItem = { title: 'Rabbits > Cats', content: "They're cuter, duh." };
+knex('notes')
+  .insert(newItem)
+  .returning(['id', 'title', 'content'])
+  .then((results) => {
+    Object.assign(newItem, results[0]);
+  })
+  .then(() => knex('notes')
+    .del()
+    .where({ id: newItem.id }))
+  .then(console.log);
