@@ -5,11 +5,7 @@ const express = require('express');
 // Create an router instance (aka "mini-app")
 const router = express.Router();
 
-// TEMP: Simple In-Memory Database
-const data = require('../db/notes');
-const simDB = require('../db/simDB');
-
-const notes = simDB.initialize(data);
+const notes = require('../db/notes');
 
 // Get All (and search by query)
 router.get('/', (req, res, next) => {

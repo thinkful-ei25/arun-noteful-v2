@@ -2,7 +2,7 @@
 
 'use strict';
 
-const knex = require('../knex');
+const knex = require('../db/knex');
 
 const searchTerm = 'gaga';
 knex
