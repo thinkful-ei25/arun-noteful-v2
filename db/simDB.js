@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 
 // Simple In-Memory Database (async-callback version)
