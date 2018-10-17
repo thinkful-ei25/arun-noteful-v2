@@ -9,6 +9,7 @@ const cors = require('cors');
 const { PORT } = require('./config');
 
 const notesRouter = require('./routes/notes');
+const foldersRouter = require('./routes/folders');
 
 // Create an Express application
 const app = express();
@@ -25,8 +26,9 @@ app.use(cors());
 // Parse request body
 app.use(express.json());
 
-// Mount router on "/api"
+// Mount routers on "/api"
 app.use('/api/notes', notesRouter);
+app.use('/api/folders', foldersRouter);
 
 // Custom 404 Not Found route handler
 app.use((req, res, next) => {
@@ -36,7 +38,8 @@ app.use((req, res, next) => {
 });
 
 // Custom Error Handler
-app.use((err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
   if (err.status) {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.status).json(errBody);
