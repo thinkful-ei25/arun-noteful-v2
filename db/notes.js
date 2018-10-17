@@ -12,10 +12,14 @@ const notesAndFolderFields = [
 
 const notesDB = {
   create(newItem) {
+    // folder_id is used by the database, but this is the only place we want to see it.
+    const { folderId, ...internalItem } = newItem;
+    Object.assign(internalItem, { folder_id: folderId });
+
     return knex('notes')
-      .insert(newItem)
-      .returning('*')
-      .then(results => results[0]);
+      .insert(internalItem)
+      .returning('id')
+      .then(ids => this.find(ids[0]));
   },
 
   filter(searchTerm, folderId) {
@@ -42,11 +46,14 @@ const notesDB = {
   },
 
   update(id, updateItem) {
+    const { folderId, ...internalItem } = updateItem;
+    Object.assign(internalItem, { folder_id: folderId });
+
     return knex('notes')
-      .update(updateItem)
-      .where({ id })
-      .returning('*')
-      .then(results => results[0]);
+      .update(internalItem)
+      .where({ 'notes.id': id })
+      .returning('id')
+      .then(ids => this.find(ids[0]));
   },
 
   delete(id) {
