@@ -2,6 +2,14 @@
 
 const knex = require('./knex');
 
+const notesAndFolderFields = [
+  'notes.id',
+  'title',
+  'content',
+  'folder_id as folderId',
+  'folders.name as folderName',
+];
+
 const notesDB = {
   create(newItem) {
     return knex('notes')
@@ -12,13 +20,7 @@ const notesDB = {
 
   filter(searchTerm, folderId) {
     return knex('notes')
-      .select([
-        'notes.id',
-        'title',
-        'content',
-        'folder_id as folderId',
-        'folders.name as folderName',
-      ])
+      .select(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
       .modify((query) => {
         if (searchTerm) {
@@ -33,8 +35,9 @@ const notesDB = {
 
   find(id) {
     return knex('notes')
-      .select()
-      .where({ id })
+      .select(notesAndFolderFields)
+      .leftJoin('folders', 'notes.folder_id', 'folders.id')
+      .where({ 'notes.id': id })
       .then(results => results[0]);
   },
 
