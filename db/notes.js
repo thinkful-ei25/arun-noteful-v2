@@ -10,12 +10,22 @@ const notesDB = {
       .then(results => results[0]);
   },
 
-  filter(searchTerm) {
+  filter(searchTerm, folderId) {
     return knex('notes')
-      .select()
+      .select([
+        'notes.id',
+        'title',
+        'content',
+        'folder_id as folderId',
+        'folders.name as folderName',
+      ])
+      .leftJoin('folders', 'notes.folder_id', 'folders.id')
       .modify((query) => {
         if (searchTerm) {
           query.where('title', 'LIKE', `%${searchTerm}%`);
+        }
+        if (folderId) {
+          query.where('folder_id', folderId);
         }
       })
       .orderBy('id');
