@@ -3,10 +3,10 @@
 DROP TABLE IF EXISTS notes;
 
 CREATE TABLE IF NOT EXISTS notes (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT,
-  created TIMESTAMP (0) WITH TIME ZONE DEFAULT now()
+  id serial PRIMARY KEY,
+  title text NOT NULL,
+  content text,
+  created timestamp (0) WITH TIME ZONE DEFAULT now()
 );
 
 ALTER SEQUENCE notes_id_seq
