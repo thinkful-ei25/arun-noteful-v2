@@ -14,12 +14,12 @@ const notesDB = {
   create(newItem) {
     // folder_id is used by the database, but this is the only place we want to see it.
     const { folderId, ...internalItem } = newItem;
-    Object.assign(internalItem, { folder_id: folderId });
+    Object.assign(internalItem, { folder_id: folderId || null });
 
     return knex('notes')
       .insert(internalItem)
       .returning('id')
-      .then(ids => this.find(ids[0]));
+      .then(([newId]) => this.find(newId));
   },
 
   filter(searchTerm, folderId) {
@@ -39,21 +39,20 @@ const notesDB = {
 
   find(id) {
     return knex('notes')
-      .select(notesAndFolderFields)
+      .first(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
-      .where({ 'notes.id': id })
-      .then(results => results[0]);
+      .where({ 'notes.id': id });
   },
 
   update(id, updateItem) {
     const { folderId, ...internalItem } = updateItem;
-    Object.assign(internalItem, { folder_id: folderId });
+    Object.assign(internalItem, { folder_id: folderId || null });
 
     return knex('notes')
       .update(internalItem)
-      .where({ 'notes.id': id })
+      .where({ id })
       .returning('id')
-      .then(ids => this.find(ids[0]));
+      .then(([newId]) => this.find(newId));
   },
 
   delete(id) {
