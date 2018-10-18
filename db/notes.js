@@ -13,27 +13,22 @@ const notesAndFolderFields = [
 ];
 
 function hydrateTags(notes) {
-  const hydrated = [];
-  const hash = {};
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const note of notes) {
-    const { tagId, tagName, ...hydratedNote } = note;
-    if (!hash[hydratedNote.id]) {
-      hydratedNote.tags = [];
-      hash[hydratedNote.id] = hydratedNote;
-      hydrated.push(hydratedNote);
+  const notesById = notes.reduce((acc, note) => {
+    if (!acc[note.id]) {
+      acc[note.id] = [];
     }
 
-    if (tagId && tagName) {
-      hash[hydratedNote.id].tags.push({
-        id: tagId,
-        name: tagName,
-      });
-    }
-  }
+    acc[note.id].push(note);
+    return acc;
+  }, {});
 
-  return hydrated;
+  return Object.values(notesById).map((notesOfId) => {
+    const { tagId, tagName, ...noteBase } = notesOfId[0];
+    noteBase.tags = notesOfId
+      .map(note => (note.tagId ? { id: note.tagId, name: note.tagName } : null))
+      .filter(e => e); // Get rid of null elements
+    return noteBase;
+  });
 }
 
 const notes = {
@@ -43,8 +38,7 @@ const notes = {
     }
 
     const junctionRows = tagIds.map(tagId => ({ note_id: noteId, tag_id: tagId }));
-    return knex('notes_tags')
-      .insert(junctionRows);
+    return knex('notes_tags').insert(junctionRows);
   },
 
   removeTags(noteId) {
