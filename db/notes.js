@@ -14,7 +14,7 @@ const notesDB = {
   create(newItem) {
     // folder_id is used by the database, but this is the only place we want to see it.
     const { folderId, ...internalItem } = newItem;
-    Object.assign(internalItem, { folder_id: folderId });
+    Object.assign(internalItem, { folder_id: folderId || null });
 
     return knex('notes')
       .insert(internalItem)
@@ -46,7 +46,7 @@ const notesDB = {
 
   update(id, updateItem) {
     const { folderId, ...internalItem } = updateItem;
-    Object.assign(internalItem, { folder_id: folderId });
+    Object.assign(internalItem, { folder_id: folderId || null });
 
     return knex('notes')
       .update(internalItem)
