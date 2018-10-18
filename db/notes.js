@@ -48,7 +48,7 @@ const notes = {
       .then(([newId]) => this.find(newId));
   },
 
-  filter(searchTerm, folderId) {
+  filter(searchTerm, folderId, tagId) {
     return knex('notes')
       .select(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
@@ -60,6 +60,9 @@ const notes = {
         }
         if (folderId) {
           query.where('folder_id', folderId);
+        }
+        if (tagId) {
+          query.where('tags.id', tagId);
         }
       })
       .orderBy('id')

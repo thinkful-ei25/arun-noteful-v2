@@ -9,10 +9,10 @@ const notes = require('../db/notes');
 
 // Get All (and search by query)
 router.get('/', (req, res, next) => {
-  const { searchTerm, folderId } = req.query;
+  const { searchTerm, folderId, tagId } = req.query;
 
   notes
-    .filter(searchTerm, folderId)
+    .filter(searchTerm, folderId, tagId)
     .then((list) => {
       res.json(list);
     })
