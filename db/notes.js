@@ -47,6 +47,12 @@ const notes = {
       .insert(junctionRows);
   },
 
+  removeTags(noteId) {
+    return knex('notes_tags')
+      .del()
+      .where('note_id', noteId);
+  },
+
   create(newItem) {
     // folder_id is used by the database, but this is the only place we want to see it.
     const { folderId, tags, ...internalItem } = newItem;
@@ -92,13 +98,15 @@ const notes = {
   },
 
   update(id, updateItem) {
-    const { folderId, ...internalItem } = updateItem;
+    const { folderId, tags, ...internalItem } = updateItem;
     Object.assign(internalItem, { folder_id: folderId || null });
 
     return knex('notes')
       .update(internalItem)
       .where({ id })
       .returning('id')
+      .tap(([newId]) => this.removeTags(newId))
+      .tap(([newId]) => this.addTags(newId, tags))
       .then(([newId]) => this.find(newId));
   },
 

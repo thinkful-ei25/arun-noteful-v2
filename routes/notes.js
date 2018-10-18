@@ -45,7 +45,7 @@ router.put('/:id', (req, res, next) => {
 
   /** *** Never trust users - validate input **** */
   const updateObj = {};
-  const updateableFields = ['title', 'content', 'folderId'];
+  const updateableFields = ['title', 'content', 'folderId', 'tags'];
 
   updateableFields.forEach((field) => {
     if (field in req.body) {
