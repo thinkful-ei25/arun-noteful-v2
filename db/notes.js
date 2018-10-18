@@ -8,7 +8,33 @@ const notesAndFolderFields = [
   'content',
   'folder_id as folderId',
   'folders.name as folderName',
+  'tags.id as tagId',
+  'tags.name as tagName',
 ];
+
+function hydrateTags(notes) {
+  const hydrated = [];
+  const hash = {};
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const note of notes) {
+    const { tagId, tagName, ...hydratedNote } = note;
+    if (!hash[hydratedNote.id]) {
+      hydratedNote.tags = [];
+      hash[hydratedNote.id] = hydratedNote;
+      hydrated.push(hydratedNote);
+    }
+
+    if (tagId && tagName) {
+      hash[hydratedNote.id].tags.push({
+        id: tagId,
+        name: tagName,
+      });
+    }
+  }
+
+  return hydrated;
+}
 
 const notes = {
   create(newItem) {
@@ -26,6 +52,8 @@ const notes = {
     return knex('notes')
       .select(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
+      .leftJoin('notes_tags', 'notes.id', 'notes_tags.note_id')
+      .leftJoin('tags', 'notes_tags.tag_id', 'tags.id')
       .modify((query) => {
         if (searchTerm) {
           query.where('title', 'LIKE', `%${searchTerm}%`);
@@ -34,14 +62,19 @@ const notes = {
           query.where('folder_id', folderId);
         }
       })
-      .orderBy('id');
+      .orderBy('id')
+      .then(hydrateTags);
   },
 
   find(id) {
     return knex('notes')
-      .first(notesAndFolderFields)
+      .select(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
-      .where({ 'notes.id': id });
+      .leftJoin('notes_tags', 'notes.id', 'notes_tags.note_id')
+      .leftJoin('tags', 'notes_tags.tag_id', 'tags.id')
+      .where({ 'notes.id': id })
+      .then(hydrateTags)
+      .then(results => results[0]);
   },
 
   update(id, updateItem) {
