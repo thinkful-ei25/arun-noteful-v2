@@ -19,7 +19,7 @@ const notesDB = {
     return knex('notes')
       .insert(internalItem)
       .returning('id')
-      .then(ids => this.find(ids[0]));
+      .then(([newId]) => this.find(newId));
   },
 
   filter(searchTerm, folderId) {
@@ -39,10 +39,9 @@ const notesDB = {
 
   find(id) {
     return knex('notes')
-      .select(notesAndFolderFields)
+      .first(notesAndFolderFields)
       .leftJoin('folders', 'notes.folder_id', 'folders.id')
-      .where({ 'notes.id': id })
-      .then(results => results[0]);
+      .where({ 'notes.id': id });
   },
 
   update(id, updateItem) {
@@ -51,9 +50,9 @@ const notesDB = {
 
     return knex('notes')
       .update(internalItem)
-      .where({ 'notes.id': id })
+      .where({ id })
       .returning('id')
-      .then(ids => this.find(ids[0]));
+      .then(([newId]) => this.find(newId));
   },
 
   delete(id) {
