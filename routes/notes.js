@@ -9,10 +9,10 @@ const notes = require('../db/notes');
 
 // Get All (and search by query)
 router.get('/', (req, res, next) => {
-  const { searchTerm, folderId } = req.query;
+  const { searchTerm, folderId, tagId } = req.query;
 
   notes
-    .filter(searchTerm, folderId)
+    .filter(searchTerm, folderId, tagId)
     .then((list) => {
       res.json(list);
     })
@@ -45,7 +45,7 @@ router.put('/:id', (req, res, next) => {
 
   /** *** Never trust users - validate input **** */
   const updateObj = {};
-  const updateableFields = ['title', 'content', 'folderId'];
+  const updateableFields = ['title', 'content', 'folderId', 'tags'];
 
   updateableFields.forEach((field) => {
     if (field in req.body) {
@@ -77,10 +77,14 @@ router.put('/:id', (req, res, next) => {
 
 // Post (insert) an item
 router.post('/', (req, res, next) => {
-  const { title, content, folderId } = req.body;
+  const {
+    title, content, folderId, tags,
+  } = req.body;
 
   /** *** Never trust users - validate input **** */
-  const newItem = { title, content, folderId };
+  const newItem = {
+    title, content, folderId, tags,
+  };
   if (!newItem.title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;

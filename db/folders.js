@@ -18,9 +18,8 @@ module.exports = {
 
   find(id) {
     return knex('folders')
-      .select()
-      .where({ id })
-      .then(results => results[0]);
+      .first()
+      .where({ id });
   },
 
   update(id, updateItem) {
