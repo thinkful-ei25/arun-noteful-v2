@@ -10,7 +10,7 @@ const notesAndFolderFields = [
   'folders.name as folderName',
 ];
 
-const notesDB = {
+const notes = {
   create(newItem) {
     // folder_id is used by the database, but this is the only place we want to see it.
     const { folderId, ...internalItem } = newItem;
@@ -62,4 +62,4 @@ const notesDB = {
   },
 };
 
-module.exports = notesDB;
+module.exports = notes;
