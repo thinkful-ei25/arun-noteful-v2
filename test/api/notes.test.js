@@ -132,4 +132,55 @@ describe('/api/notes', () => {
         expect(res.body.tags[0].name).to.equal('MANDATORY');
       }));
   });
+
+  describe('POST /api/notes', () => {
+    it('should return status 400 for a missing title field', () => {
+      const errorFixture = {
+        content: 'Lorem ipsum dolor',
+      };
+
+      return chai
+        .request(server)
+        .post('/api/notes')
+        .send(errorFixture)
+        .then((res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.message).to.equal('Missing `title` in request body');
+        });
+    });
+
+    it('should create and return a new item when provided valid data', () => {
+      const fixture = {
+        title: 'Test title',
+        content: 'Lorem ipsum dolor',
+        tags: [200, 201],
+      };
+
+      const expectedReturn = {
+        id: 1010,
+        title: 'Test title',
+        content: 'Lorem ipsum dolor',
+        folderId: null,
+        folderName: null,
+        tags: [{ id: 200, name: 'URGENT' }, { id: 201, name: 'WORLD ENDING' }],
+      };
+
+      return chai
+        .request(server)
+        .post('/api/notes')
+        .send(fixture)
+        .then((res) => {
+          expect(res).to.have.status(201);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.deep.equal(expectedReturn);
+
+          const location = new URL(res.header.location);
+          return chai.request(server).get(location.pathname);
+        })
+        .then((res) => {
+          expect(res).to.have.status(200);
+        });
+    });
+  });
 });
