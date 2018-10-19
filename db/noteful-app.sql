@@ -74,5 +74,6 @@ INSERT INTO tags (name) VALUES
 INSERT INTO notes_tags (note_id, tag_id) VALUES
   (1001, 201),
   (1003, 202),
-  (1008, 200)
+  (1008, 200),
+  (1003, 201)
 ;

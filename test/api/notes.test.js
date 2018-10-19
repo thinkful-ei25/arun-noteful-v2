@@ -10,7 +10,7 @@ const server = require('../../server');
 const { expect } = chai;
 chai.use(chaiHttp);
 
-describe('/api/notes endpoint', () => {
+describe('/api/notes', () => {
   beforeEach(() => createDBFixtures('./db/noteful-app.sql'));
 
   after(() => knex.destroy());
@@ -38,7 +38,7 @@ describe('/api/notes endpoint', () => {
         });
 
         expect(res.body[1].tags[0].id).to.equal(201);
-        expect(res.body[3].tags[0].name).to.equal('MANDATORY');
+        expect(res.body[3].tags).to.have.length(2);
         expect(res.body[0].tags).to.have.length(0);
       }));
 
@@ -88,5 +88,48 @@ describe('/api/notes endpoint', () => {
         })
         .finally(() => agent.close()));
     });
+  });
+
+  describe('GET /:id', () => {
+    it('should return 404 for an invalid `id`', () => chai
+      .request(server)
+      .get('/api/notes/1')
+      .then((res) => {
+        expect(res).to.have.status(404);
+      }));
+
+    it('should return a note for a valid `id`', () => chai
+      .request(server)
+      .get('/api/notes/1000')
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.have.keys(
+          'id',
+          'title',
+          'content',
+          'folderId',
+          'folderName',
+          'tags',
+        );
+        expect(res.body.tags).to.be.an('array');
+        expect(res.body.tags).to.have.length(0);
+        expect(res.body.id).to.equal(1000);
+      }));
+
+    it('should return a note with hydrated tags', () => chai
+      .request(server)
+      .get('/api/notes/1003')
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.tags).to.be.an('array');
+        expect(res.body.tags).to.have.length(2);
+        res.body.tags.forEach((tag) => {
+          expect(tag).to.have.keys('id', 'name');
+        });
+        expect(res.body.tags[0].id).to.equal(202);
+        expect(res.body.tags[0].name).to.equal('MANDATORY');
+      }));
   });
 });
