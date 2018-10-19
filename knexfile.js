@@ -11,4 +11,9 @@ module.exports = {
     client: 'pg',
     connection: process.env.DATABASE_URL,
   },
+  test: {
+    client: 'pg',
+    connection: process.env.DATABASE_URL || 'postgress://localhost/noteful-test',
+    pool: { min: 1, max: 2 },
+  },
 };
