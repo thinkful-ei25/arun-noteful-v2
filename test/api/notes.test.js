@@ -183,4 +183,55 @@ describe('/api/notes', () => {
         });
     });
   });
+
+  describe('PUT /api/notes/:id', () => {
+    const fixture = {
+      title: 'Rabbits > Cats',
+      content: 'Lorem ipsum dolor',
+      tags: [200],
+    };
+
+    const expectedReturn = {
+      id: 1003,
+      title: 'Rabbits > Cats',
+      content: 'Lorem ipsum dolor',
+      folderId: null,
+      folderName: null,
+      tags: [{ id: 200, name: 'URGENT' }],
+    };
+
+    it('should return 404 if `id` is invalid', () => chai
+      .request(server)
+      .put('/api/notes/1')
+      .send(fixture)
+      .then((res) => {
+        expect(res).to.have.status(404);
+      }));
+
+    it('should return 400 if `title` is missing', () => chai
+      .request(server)
+      .put('/api/notes/1003')
+      .send({ content: 'Lorem ipsum dolor' })
+      .then((res) => {
+        expect(res).to.have.status(400);
+        expect(res.body.message).to.equal('Missing `title` in request body');
+      }));
+
+    it('should update and return a note if provided valid data', () => chai
+      .request(server)
+      .put('/api/notes/1003')
+      .send(fixture)
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res.body).to.deep.equal(expectedReturn);
+
+        return chai.request(server).get('/api/notes/1003');
+      })
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res.body).to.deep.equal(expectedReturn);
+      }));
+  });
 });
