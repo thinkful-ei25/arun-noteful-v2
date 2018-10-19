@@ -129,8 +129,10 @@ describe('/api/notes', () => {
         res.body.tags.forEach((tag) => {
           expect(tag).to.have.keys('id', 'name');
         });
-        expect(res.body.tags[0].id).to.equal(202);
-        expect(res.body.tags[0].name).to.equal('MANDATORY');
+
+        const sortedTags = res.body.tags.sort((a, b) => a.id - b.id);
+        expect(sortedTags[1].id).to.have.equal(202);
+        expect(sortedTags[1].name).to.equal('MANDATORY');
       }));
   });
 
