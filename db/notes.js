@@ -2,16 +2,6 @@
 
 const knex = require('./knex');
 
-const notesAndFolderFields = [
-  'notes.id',
-  'title',
-  'content',
-  'folder_id as folderId',
-  'folders.name as folderName',
-  'tags.id as tagId',
-  'tags.name as tagName',
-];
-
 function hydrateTags(notes) {
   const notesById = notes.reduce((acc, note) => {
     if (!acc[note.id]) {
@@ -29,6 +19,22 @@ function hydrateTags(notes) {
       .filter(e => e); // Get rid of null elements
     return noteBase;
   });
+}
+
+function notesLeftJoin() {
+  return knex('notes')
+    .select([
+      'notes.id',
+      'title',
+      'content',
+      'folder_id as folderId',
+      'folders.name as folderName',
+      'tags.id as tagId',
+      'tags.name as tagName',
+    ])
+    .leftJoin('folders', 'notes.folder_id', 'folders.id')
+    .leftJoin('notes_tags', 'notes.id', 'notes_tags.note_id')
+    .leftJoin('tags', 'notes_tags.tag_id', 'tags.id');
 }
 
 const notes = {
@@ -60,11 +66,7 @@ const notes = {
   },
 
   filter(searchTerm, folderId, tagId) {
-    return knex('notes')
-      .select(notesAndFolderFields)
-      .leftJoin('folders', 'notes.folder_id', 'folders.id')
-      .leftJoin('notes_tags', 'notes.id', 'notes_tags.note_id')
-      .leftJoin('tags', 'notes_tags.tag_id', 'tags.id')
+    return notesLeftJoin()
       .modify((query) => {
         if (searchTerm) {
           query.where('title', 'LIKE', `%${searchTerm}%`);
@@ -81,11 +83,7 @@ const notes = {
   },
 
   find(id) {
-    return knex('notes')
-      .select(notesAndFolderFields)
-      .leftJoin('folders', 'notes.folder_id', 'folders.id')
-      .leftJoin('notes_tags', 'notes.id', 'notes_tags.note_id')
-      .leftJoin('tags', 'notes_tags.tag_id', 'tags.id')
+    return notesLeftJoin()
       .where({ 'notes.id': id })
       .then(hydrateTags)
       .then(results => results[0]);
