@@ -53,6 +53,7 @@ describe('/api/notes', () => {
         agent.close();
       });
 
+      // eslint-disable-next-line max-len
       it('should return only notes that contain the `searchTerm` in their title', () => agent
         .get('/api/notes?searchTerm=The')
         .then((res) => {
@@ -233,5 +234,32 @@ describe('/api/notes', () => {
         expect(res).to.be.json;
         expect(res.body).to.deep.equal(expectedReturn);
       }));
+  });
+
+  describe('DELETE /api/notes/:id', () => {
+    it('should delete an item when provided a valid id', () => {
+      const url = '/api/notes/1003';
+      return chai
+        .request(server)
+        .delete(url)
+        .then((res) => {
+          expect(res).to.have.status(204);
+        })
+        .then(() => chai.request(server).get(url))
+        .then((res) => {
+          expect(res).to.have.status(404);
+        });
+    });
+
+    it('should be idempotent', () => {
+      const url = '/api/notes/1001';
+      return chai
+        .request(server)
+        .delete(url)
+        .then(() => chai.request(server).delete(url))
+        .then((res) => {
+          expect(res).to.have.status(204);
+        });
+    });
   });
 });
