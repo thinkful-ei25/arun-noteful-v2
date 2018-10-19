@@ -48,6 +48,10 @@ const notes = {
   },
 
   removeTags(noteId) {
+    if (!noteId) {
+      return Promise.reject();
+    }
+
     return knex('notes_tags')
       .del()
       .where('note_id', noteId);

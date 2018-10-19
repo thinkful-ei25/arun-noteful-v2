@@ -97,7 +97,7 @@ router.post('/', (req, res, next) => {
     .then((item) => {
       if (item) {
         res
-          .location(`http://${req.headers.host}/notes/${item.id}`)
+          .location(`http://${req.headers.host}/api/notes/${item.id}`)
           .status(201)
           .json(item);
       }

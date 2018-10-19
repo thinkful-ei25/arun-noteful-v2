@@ -16,7 +16,9 @@ const tagsRouter = require('./routes/tags');
 const app = express();
 
 // Log all requests
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
 
 // Create a static webserver
 app.use(express.static('public'));
@@ -51,11 +53,15 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Listen for incoming connections
-app
-  .listen(PORT, function serverListen() {
-    console.info(`Server listening on ${this.address().port}`);
-  })
-  .on('error', (err) => {
-    console.error(err);
-  });
+if (require.main === module) {
+  // Listen for incoming connections
+  app
+    .listen(PORT, function serverListen() {
+      console.info(`Server listening on ${this.address().port}`);
+    })
+    .on('error', (err) => {
+      console.error(err);
+    });
+}
+
+module.exports = app;
