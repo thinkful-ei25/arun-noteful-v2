@@ -13,7 +13,7 @@ module.exports = {
   },
   test: {
     client: 'pg',
-    connection: process.env.DATABASE_URL || 'postgress://localhost/noteful-test',
+    connection: process.env.DATABASE_URL || 'postgres://localhost/noteful-test',
     pool: { min: 1, max: 2 },
   },
 };

@@ -16,7 +16,9 @@ const tagsRouter = require('./routes/tags');
 const app = express();
 
 // Log all requests
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
 
 // Create a static webserver
 app.use(express.static('public'));
